@@ -1,0 +1,60 @@
+' Copyright (C) 2015, Som Inc.
+' Created by Som, Inc. <info@som.com>.
+' This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
+
+@startuml centralized_configuration
+
+hide footbox
+
+box "**Som Master Node**"
+participant "som-remoted" as masterremote
+participant "som-clusterd" as mclusterd
+end box
+box "**Som Worker Node**"
+participant "som-clusterd" as wclusterd
+participant "som-remoted" as workerremote
+end box
+participant "**Som Agent**\nsom-agentd" as agent
+
+masterremote++
+mclusterd++
+workerremote++
+wclusterd++
+agent++
+
+loop every remoted.shared_reload
+    opt remoted.merge_shared == 1
+        masterremote -> masterremote: create group's and multigroup's\nmerged.mg by joining individual files
+    end
+end
+
+loop
+    wclusterd -> mclusterd: sync
+    rnote over wclusterd, mclusterd: [[https://github.com/som/som/blob/master/framework/som/core/cluster/cluster.json sync file list]]
+    mclusterd --> wclusterd: delta
+end
+
+loop every <client> notify_time
+    opt merged.mg hash not cached
+        agent -> agent: hash current merged.mg and\nsave it into cache value
+    end 
+    workerremote <- agent: send agent status\n(uname, labels, ip, merged.mg hash, labels ip)
+    workerremote -> workerremote: update agent status
+    opt agent's and worker's merged.mg differ\n(based on their hashes)
+        loop until whole merged.mg is transfered
+            workerremote -> agent: merged.mg chunk
+            workerremote <-- agent:
+        end
+        agent -> agent: unmerge merged.mg into separated files
+        alt unmerge ok
+            agent -> agent: clean merged.mg cache
+            opt agent.remote_conf is true and is a valid config
+                opt auto_restart
+                    agent ->x agent: restart
+                end
+            end
+        else
+            agent -> workerremote: send warning alert
+        end
+    end
+end
