@@ -1,0 +1,90 @@
+services:
+    SOM-base:
+        build:
+            context: ./SOM-base
+            args:
+                SOM_BRANCH: ${SOM_BRANCH}
+        image: dev-SOM-base
+
+    SOM-master:
+        build:
+            context: ./SOM-manager
+            target: server
+        image: dev-SOM-manager
+        hostname: SOM-master
+        volumes:
+            - ${SOM_LOCAL_PATH}/framework/scripts:/var/ossec/framework/scripts
+            - ${SOM_LOCAL_PATH}/api/scripts:/var/ossec/api/scripts
+            - ${SOM_LOCAL_PATH}/framework/SOM:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/SOM
+            - ${SOM_LOCAL_PATH}/api/api:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/api
+        ports:
+            - "55050:55000"
+        entrypoint:
+            - /scripts/entrypoint.sh
+            - SOM-master
+            - master-node
+            - master
+        depends_on:
+            - SOM-base
+
+    SOM-worker1:
+        image: dev-SOM-manager
+        hostname: SOM-worker1
+        volumes:
+            - ${SOM_LOCAL_PATH}/framework/scripts:/var/ossec/framework/scripts
+            - ${SOM_LOCAL_PATH}/api/scripts:/var/ossec/api/scripts
+            - ${SOM_LOCAL_PATH}/framework/SOM:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/SOM
+            - ${SOM_LOCAL_PATH}/api/api:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/api
+        depends_on:
+            - SOM-master
+        ports:
+            - "55051:55000"
+        entrypoint:
+            - /scripts/entrypoint.sh
+            - SOM-master
+            - worker1
+            - worker
+
+    SOM-worker2:
+        image: dev-SOM-manager
+        hostname: SOM-worker2
+        volumes:
+            - ${SOM_LOCAL_PATH}/framework/scripts:/var/ossec/framework/scripts
+            - ${SOM_LOCAL_PATH}/api/scripts:/var/ossec/api/scripts
+            - ${SOM_LOCAL_PATH}/framework/SOM:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/SOM
+            - ${SOM_LOCAL_PATH}/api/api:/var/ossec/framework/python/lib/python${SOM_PYTHON_VERSION}/site-packages/api
+        depends_on:
+            - SOM-master
+        ports:
+            - "55052:55000"
+        entrypoint:
+            - /scripts/entrypoint.sh
+            - SOM-master
+            - worker2
+            - worker
+
+    nginx-lb:
+        build:
+            context: ./nginx-lb
+        image: dev-nginx-lb
+        restart: on-failure:5
+        entrypoint:
+            - /scripts/entrypoint.sh
+        depends_on:
+            - SOM-master
+            - SOM-worker1
+            - SOM-worker2
+
+    SOM-agent:
+        build:
+            context: ./SOM-agent
+        image: dev-SOM-agent
+        entrypoint:
+            - /scripts/entrypoint.sh
+            - nginx-lb
+            - ${SOM_VERSION}
+        depends_on:
+            - SOM-master
+            - SOM-worker1
+            - SOM-worker2
+            - nginx-lb
