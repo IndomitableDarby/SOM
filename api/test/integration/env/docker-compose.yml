@@ -1,0 +1,224 @@
+services:
+  som-master:
+    profiles:
+      - standalone
+      - cluster
+    build:
+      context: .
+      dockerfile: base/manager/manager.Dockerfile
+    image: integration_test_som-manager
+    hostname: som-master
+    ports:
+      - "55000:55000"
+    volumes:
+      - ./configurations/tmp/manager:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - som-master
+      - master-node
+      - master
+      - ${ENV_MODE}
+
+  som-worker1:
+    profiles:
+      - cluster
+    image: integration_test_som-manager
+    hostname: som-worker1
+    volumes:
+      - ./configurations/tmp/manager:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - som-master
+      - worker1
+      - worker
+    depends_on:
+      - som-master
+
+  som-worker2:
+    profiles:
+      - cluster
+    image: integration_test_som-manager
+    hostname: som-worker2
+    volumes:
+      - ./configurations/tmp/manager:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - som-master
+      - worker2
+      - worker
+    depends_on:
+      - som-master
+
+  som-agent1:
+    profiles:
+      - standalone
+      - cluster
+    build:
+      context: .
+      dockerfile: base/agent/new.Dockerfile
+    image: integration_test_som-agent
+    hostname: som-agent1
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent1
+    depends_on:
+      - haproxy-lb
+
+  som-agent2:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent
+    hostname: som-agent2
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent2
+    depends_on:
+      - som-agent1
+      - haproxy-lb
+
+  som-agent3:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent
+    hostname: som-agent3
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent3
+    depends_on:
+      - som-agent2
+      - haproxy-lb
+
+  som-agent4:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent
+    hostname: som-agent4
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent4
+    depends_on:
+      - som-agent3
+      - haproxy-lb
+
+  som-agent5:
+    profiles:
+      - standalone
+      - cluster
+    build:
+      context: .
+      dockerfile: base/agent/old.Dockerfile
+    image: integration_test_som-agent_old
+    hostname: som-agent5
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent5
+      - agent_old
+    depends_on:
+      - som-agent4
+      - haproxy-lb
+
+  som-agent6:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent_old
+    hostname: som-agent6
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent6
+      - agent_old
+    depends_on:
+      - som-agent5
+      - haproxy-lb
+
+  som-agent7:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent_old
+    hostname: som-agent7
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent7
+      - agent_old
+    depends_on:
+      - som-agent6
+      - haproxy-lb
+
+  som-agent8:
+    profiles:
+      - standalone
+      - cluster
+    image: integration_test_som-agent_old
+    hostname: som-agent8
+    volumes:
+      - ./configurations/tmp/agent:/tmp_volume
+      - ./tools/:/tools
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - haproxy-lb
+      - som-agent8
+      - agent_old
+    depends_on:
+      - som-agent7
+      - haproxy-lb
+
+  haproxy-lb:
+    profiles:
+      - standalone
+      - cluster
+    build:
+      context: ./base/haproxy-lb
+    image: integration_test_haproxy-lb
+    entrypoint:
+      - /scripts/entrypoint.sh
+      - ${ENV_MODE}
+    depends_on:
+      - som-master
+      - som-worker1
+      - som-worker2
+
+  cti:
+    profiles:
+      - standalone
+      - cluster
+    build:
+      context: ./base/cti
+    image: integration_test_cti
+    restart: always
+    environment:
+      - PORT=4041

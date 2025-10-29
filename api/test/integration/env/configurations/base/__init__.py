@@ -1,0 +1,1 @@
+som_master = __import__('som-master')
