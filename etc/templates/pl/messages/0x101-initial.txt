@@ -1,0 +1,3 @@
+
+ Rozpoczynasz proces instalacji programu Som.
+ Aby kontynuować musisz mieć zainstalowany kompilator C.
