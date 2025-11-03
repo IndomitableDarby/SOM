@@ -1,5 +1,0 @@
-audit-som-w:write
-audit-som-r:read
-audit-som-a:attribute
-audit-som-x:execute
-audit-som-c:command
