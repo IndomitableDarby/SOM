@@ -1,0 +1,9 @@
+som-manager: embedded-library
+som-manager: embedded-zlib
+som-manager: possible-gpl-code-linked-with-openssl
+som-manager: new-package-should-close-itp-bug
+som-manager: possibly-insecure-handling-of-tmp-files-in-maintainer-script
+som-manager: non-standard-dir-in-var
+som-manager: file-in-unusual-dir
+som-manager: hardening-no-fortify-functions
+som-manager: hardening-no-relro
