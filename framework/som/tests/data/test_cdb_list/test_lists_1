@@ -1,0 +1,5 @@
+test-som-w:write
+test-som-r:read
+test-som-a:attribute
+test-som-x:execute
+test-som-c:command

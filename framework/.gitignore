@@ -1,0 +1,19 @@
+
+# Python
+*.pyc
+*.egg-info
+*.egg
+
+# Framework
+docs/build/
+dist/
+build/
+
+# Objects
+libsqlite3.so*
+som-clusterd-internal
+
+# Projects
+.idea
+
+som/som.json

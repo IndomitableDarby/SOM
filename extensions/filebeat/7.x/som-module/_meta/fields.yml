@@ -1,0 +1,9 @@
+- key: som
+  title: "som"
+  description: >
+    som Module
+  fields:
+    - name: som
+      type: group
+      description: >
+      fields:

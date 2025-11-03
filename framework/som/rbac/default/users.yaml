@@ -1,0 +1,12 @@
+# SOM SYSTEM FILE, PLEASE DO NOT MODIFY
+
+default_users:
+  som:
+    description: Superuser of Som.
+    password: som
+    allow_run_as: True
+
+  som-wui:
+    description: Superuser of Som UI
+    password: som-wui
+    allow_run_as: True

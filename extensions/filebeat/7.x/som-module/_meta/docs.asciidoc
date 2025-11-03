@@ -1,0 +1,26 @@
+:modulename: som
+:has-dashboards: false
+
+== Som module
+
+This module prepares Elasticsearch for ingesting Som alerts and, optionally, Som archives.
+
+include::../include/what-happens.asciidoc[]
+
+[float]
+=== Compatibility
+
+Compatible with Som 3.x and Elastic stack 7.x. The module was tested with Som 3.9 and Elastic stack 7.2. 
+
+include::../include/running-modules.asciidoc[]
+
+[float]
+==== `{fileset}` log fileset settings
+
+include::../include/var-paths.asciidoc[]
+
+:has-dashboards!:
+
+:fileset_ex!:
+
+:modulename!:
