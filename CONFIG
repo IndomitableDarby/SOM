@@ -1,0 +1,22 @@
+SOM
+Copyright (C) 2015, Som Inc.
+
+Based on OSSEC
+Copyright (C) 2014 Trend Micro Inc.
+
+
+= Information about Som =
+
+Visit https://www.som.com
+
+
+= Recommended Installation =
+
+See INSTALL
+
+
+== Configuring Som ==
+
+Just follow the steps from the install.sh script.
+More information at
+https://documentation.som.com
