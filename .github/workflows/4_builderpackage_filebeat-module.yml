@@ -1,0 +1,126 @@
+run-name: Package - Build Filebeat module ${{ inputs.revision }} ${{ inputs.checksum && '- checksum' || '' }} ${{ inputs.id }}
+name: 4.X - Package - Build Filebeat module
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: |
+          Revision used to naming Filebeat package som-filebeat-X.X.tar.gz.
+          Default 0.0.
+        required: false
+        default: "0.0"
+        type: string
+      checksum:
+        description: Generate package checksum.
+        required: false
+        type: boolean
+      id:
+        type: string
+        description: |
+          ID used to identify the workflow uniquely.
+        required: false
+
+  workflow_call:
+    inputs:
+      revision:
+        required: false
+        default: "0.0"
+        type: string
+      checksum:
+        required: false
+        type: boolean
+      id:
+        type: string
+        required: false
+
+jobs:
+  Filebeat-module-generation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+
+    steps:
+      - name: Cancel previous runs
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          cancel_others: 'true'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_after_successful_duplicate: 'false'
+
+      - uses: actions/checkout@v4
+
+      - name: Set package name
+        run: |
+          echo "FILEBEAT_TAR_NAME=som-filebeat-${{ inputs.revision }}.tar.gz" >> $GITHUB_ENV
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CI_INTERNAL_DEVELOPMENT_BUCKET_USER_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.CI_INTERNAL_DEVELOPMENT_BUCKET_USER_SECRET_KEY }}
+          aws-region: ${{ secrets.CI_AWS_REGION }}
+
+      - name: Package files, change permissions, create tar and upload to S3
+        working-directory: extensions/filebeat/7.x/som-module
+        run: |
+          mkdir som
+          cp -r _meta alerts archives module.yml som/
+          sudo chown -R root:root som
+          sudo chmod 755 som
+          sudo chmod 755 som/alerts
+          sudo chmod 755 som/alerts/config
+          sudo chmod 755 som/alerts/ingest
+          sudo chmod 755 som/archives
+          sudo chmod 755 som/archives/config
+          sudo chmod 755 som/archives/ingest
+          sudo chmod 644 som/module.yml
+          sudo chmod 644 som/_meta/config.yml
+          sudo chmod 644 som/_meta/docs.asciidoc
+          sudo chmod 644 som/_meta/fields.yml
+          sudo chmod 644 som/alerts/manifest.yml
+          sudo chmod 644 som/alerts/config/alerts.yml
+          sudo chmod 644 som/alerts/ingest/pipeline.json
+          sudo chmod 644 som/archives/manifest.yml
+          sudo chmod 644 som/archives/config/archives.yml
+          sudo chmod 644 som/archives/ingest/pipeline.json
+          tar -czvf ${{ env.FILEBEAT_TAR_NAME }} som
+
+      - name: Testing Filebeat module
+        working-directory: extensions/filebeat/7.x/som-module
+        run: |
+          echo "MODULE_CHECKED=no" >> $GITHUB_ENV
+          DIR_PERMS="755 root root"
+          FILE_PERMS="644 root root"
+          sudo mv ./som ./som2
+          sudo tar -xzvf ${{ env.FILEBEAT_TAR_NAME }}
+          for file in ./som/*; do
+            if [ -d "$file" ]; then
+              if [ "$(stat -L -c "%a %G %U" "$file")" != "$DIR_PERMS" ] && [[ "$file" != *"_meta" ]]; then echo "Wrong permissions for $file. Expected: $DIR_PERMS. Currently: $(stat -L -c "%a %G %U" "$file")."; exit 1; fi
+            elif [ -f "$file" ]; then
+              if [ "$(stat -L -c "%a %G %U" "$file")" != "$FILE_PERMS" ]; then echo "Wrong permissions for $file. Expected: $FILE_PERMS. Currently: $(stat -L -c "%a %G %U" "$file")."; exit 1; fi
+            fi
+          done
+          if [ $(diff -r som som2) ]; then exit 1; fi
+          echo "MODULE_CHECKED=yes" >> $GITHUB_ENV
+
+      - name: Generate SHA512
+        if: ${{ inputs.checksum }}
+        working-directory: extensions/filebeat/7.x/som-module
+        run: |
+          sha512sum "${{ env.FILEBEAT_TAR_NAME }}" > "${{ env.FILEBEAT_TAR_NAME }}.sha512"
+
+      - name: Upload Filebeat module to S3
+        if: env.MODULE_CHECKED == 'yes'
+        working-directory: extensions/filebeat/7.x/som-module
+        run: |
+          aws s3 cp ${{ env.FILEBEAT_TAR_NAME }} s3://xdrsiem-packages-dev-internal/development/som/4.x/secondary/filebeat/modules/
+          s3uri="s3://xdrsiem-packages-dev-internal/development/som/4.x/secondary/filebeat/modules/${{ env.FILEBEAT_TAR_NAME }}"
+          echo "S3 URI: ${s3uri}"
+
+      - name: Upload Filebeat module SHA512 to S3
+        if: ${{ env.MODULE_CHECKED == 'yes' && inputs.checksum }}
+        working-directory: extensions/filebeat/7.x/som-module
+        run: |
+          aws s3 cp ${{ env.FILEBEAT_TAR_NAME }}.sha512 s3://xdrsiem-packages-dev-internal/development/som/4.x/secondary/filebeat/modules/
+          s3uri="s3://xdrsiem-packages-dev-internal/development/som/4.x/secondary/filebeat/modules/${{ env.FILEBEAT_TAR_NAME }}.sha512"
+          echo "S3 sha512 URI: ${s3uri}"
