@@ -1,0 +1,32 @@
+[
+    {
+        "index_name": "som-states-inventory-processes-cluster01",
+        "data": [
+            {
+                "agent": {
+                    "id": "001",
+                    "name": "c0ce505227a4",
+                    "version": "v4.11.0"
+                },
+                "process": {
+                    "args_count": 0,
+                    "command_line": "/var/ossec/bin/som-syscheckd",
+                    "name": "som-syscheckd",
+                    "pid": 5892,
+                    "parent": {
+                        "pid": 1
+                    },
+                    "start": "2025-02-26T23:44:59.000Z"
+                },
+                "som": {
+                    "cluster": {
+                        "name": "cluster01"
+                    },
+                    "schema": {
+                        "version": "1.0"
+                    }
+                }
+            }
+        ]
+    }
+]

@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# name: som
+# purpose: Init script for Som
+# Copyright (C) 2015, Som Inc. <support@som.com>
+#
+
+SOM_HOME=SOM_HOME_TMP
+SOM_CONTROL="$SOM_HOME/bin/som-control"
+
+case "$1" in
+start)
+    if [ -f "$SOM_CONTROL" ]; then
+        echo "Starting Som"
+        ${SOM_CONTROL} start
+    fi
+    ;;
+stop)
+    if [ -f "$SOM_CONTROL" ]; then
+        echo "Stopping Som"
+        ${SOM_CONTROL} stop
+    fi
+    ;;
+status)
+    if [ -f "$SOM_CONTROL" ]; then
+        ${SOM_CONTROL} status
+    fi
+    ;;
+restart)
+    if [ -f "$SOM_CONTROL" ]; then
+        ${SOM_CONTROL} restart
+    fi
+    ;;
+*)
+    echo "Usage: $0 (start | stop | restart | status)"
+    exit 1
+esac

@@ -1,0 +1,34 @@
+[
+    {
+        "index_name": "som-states-inventory-packages-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-inventory-system-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-fim-registries-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-fim-files-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-inventory-ports-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-inventory-hotfixes-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-inventory-processes-cluster01",
+        "data": []
+    },
+    {
+        "index_name": "som-states-inventory-interfaces-cluster01",
+        "data": []
+    }
+]

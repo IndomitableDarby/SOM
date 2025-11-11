@@ -1,0 +1,29 @@
+{
+  "index_patterns": [
+    "som-states-fim-files-*",
+    "som-states-fim-registries-*",
+    "som-states-inventory-packages-*",
+    "som-states-inventory-system-*",
+    "som-states-inventory-processes-*",
+    "som-states-inventory-ports-*",
+    "som-states-inventory-hotfixes-*",
+    "som-states-inventory-hardware-*",
+    "som-states-inventory-protocols-*",
+    "som-states-inventory-interfaces-*",
+    "som-states-inventory-hardware-*",
+    "som-states-inventory-networks-*"
+  ],
+  "priority": 1,
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "dynamic": true,
+      "_source": {
+        "enabled": true
+      }
+    }
+  }
+}
