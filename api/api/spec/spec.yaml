@@ -44,8 +44,8 @@ info:
   x-revision: 'rc2'
   title: 'Som API REST'
   license:
-    name: 'GPL 2.0'
-    url: 'https://github.com/Som/Som/blob/v4.14.0/LICENSE'
+    name: 'GPL 3.0'
+    url: 'https://github.com/IndomitableDarby/SOM/blob/main/LICENSE'
 
 servers:
   - url: '{protocol}://{host}:{port}'
