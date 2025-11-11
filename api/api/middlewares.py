@@ -242,7 +242,7 @@ class SomAccessLoggerMiddleware(BaseHTTPMiddleware):
             try:
                 # Load the request body to the _json field before calling the controller so it's cached before the stream 
                 # is consumed. If there's a json error we skip it so it's handled later.
-                # Related to https://github.com/som/som/issues/24060.
+                # Related to https://github.com/wazuh/wazuh/issues/24060.
                 _ = await request.json()
             except json.decoder.JSONDecodeError:
                 pass
