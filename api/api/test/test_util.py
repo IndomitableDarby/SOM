@@ -255,7 +255,7 @@ def test_get_invalid_keys(dikt, f_kwargs, invalid_keys):
 
 @pytest.mark.parametrize('link', [
     '',
-    'https://documentation.som.com/current/user-manual/api/reference.html'
+    'https://documentation.wazuh.com/current/user-manual/api/reference.html'
 ])
 @pytest.mark.asyncio
 async def test_deprecate_endpoint(link):
